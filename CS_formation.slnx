@@ -1,1 +1,3 @@
-<Solution />
+<Solution>
+  <Project Path="TD1/TD1_Morpion.csproj" />
+</Solution>
