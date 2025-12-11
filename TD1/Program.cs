@@ -1,4 +1,6 @@
 ﻿using TD_Morpion;
 
-Game game = new();
+ConsoleUserInterface ui = new();
+Game game = new(ui);
+game.Settings.Size = 3;
 game.Start();
