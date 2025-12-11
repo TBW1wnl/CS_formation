@@ -53,20 +53,15 @@ public sealed class Board
         return new CellPos(line, column);
     }
 
-    public bool IsFull()
-    {
-        for (int i = 0; i < Size; i++)
-        {
-            for (int j = 0; j < Size; j++)
-            {
-                if (Cells[i, j] == Symbol.Empty)
-                {
-                    return false;
-                }
-            }
-        }
-        return true;
-    }
+    public bool IsFull() => Cells.Cast<Symbol>().All(cell => cell != Symbol.Empty);
+
+
+
+    public IEnumerable<(int row, int col)> GetFreePositions() =>
+        from i in Enumerable.Range(0, Size)
+        from j in Enumerable.Range(0, Size)
+        where Cells[i, j] == Symbol.Empty
+        select (i, j);
 
     public bool HasWinner(in Symbol symbol)
     {

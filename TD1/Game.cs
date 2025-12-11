@@ -19,6 +19,40 @@ public sealed class Game
         UI = ui;
     }
 
+    public Game(IUserInterface ui)
+    {
+        Board = new Board(Settings.Size);
+        UI = ui;
+
+        switch (ui.AskGameMode())
+        {
+            case GameModes.Pvp:
+                PlayerX = new Player(Symbol.X);
+                PlayerO = new Player(Symbol.O);
+                break;
+
+            case GameModes.EasyAi:
+                PlayerX = new Player(Symbol.X);
+                PlayerO = new AIPlayer(Symbol.O);
+                break;
+            // MediumAi and HardAi won't have different AI implementations
+            case GameModes.MediumAi:
+                PlayerX = new Player(Symbol.X);
+                PlayerO = new AIPlayer(Symbol.O);
+                break;
+
+            case GameModes.HardAi:
+                PlayerX = new Player(Symbol.X);
+                PlayerO = new AIPlayer(Symbol.O);
+                break;
+
+            default:
+                throw new ArgumentOutOfRangeException();
+        }
+
+        CurrentPlayer = PlayerX;
+    }
+
     public void Start()
     {
         Board.Initialize();
@@ -42,7 +76,16 @@ public sealed class Game
                 continue;
             }
 
-            int position = UI.AskMove(CurrentPlayer);
+            int position;
+            if (CurrentPlayer is AIPlayer ai)
+            {
+                position = ai.MakeMove(Board);
+                UI.ShowAIMove(ai, position);
+            }
+            else
+            {
+                position = UI.AskMove(CurrentPlayer);
+            }
 
             if (Board.TryPlaceSymbol(position, CurrentPlayer.Symbol, out string? reason))
             {
@@ -51,10 +94,12 @@ public sealed class Game
             }
             else
             {
-                UI.ShowInvalidMove(reason);
+                if (CurrentPlayer is not AIPlayer)
+                    UI.ShowInvalidMove(reason);
             }
         }
     }
+
 
     private void ResetGame()
     {
