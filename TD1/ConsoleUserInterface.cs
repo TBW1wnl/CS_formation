@@ -1,4 +1,7 @@
-﻿namespace TD_Morpion;
+﻿using System.ComponentModel;
+using System.Reflection;
+
+namespace TD_Morpion;
 
 public sealed class ConsoleUserInterface : IUserInterface
 {
@@ -103,4 +106,55 @@ public sealed class ConsoleUserInterface : IUserInterface
                 Console.WriteLine(string.Join("+", Enumerable.Repeat("----", board.Size)));
         }
     }
+
+    public static string GetEnumDescription(Enum value)
+    {
+        if (value == null)
+            throw new ArgumentNullException(nameof(value));
+
+        FieldInfo? field = value.GetType().GetField(value.ToString());
+        if (field == null)
+            return value.ToString();
+
+        DescriptionAttribute? attr =
+            (DescriptionAttribute?)Attribute.GetCustomAttribute(field, typeof(DescriptionAttribute));
+
+        return attr?.Description ?? value.ToString();
+    }
+
+    public void ShowAIMove(IPlayer ai, int position)
+    {
+        int row = position / Settings.Instance.Size;
+        int col = position % Settings.Instance.Size;
+        Console.WriteLine($"{ai.Symbol} (IA) joue en [{row},{col}] ({position})");
+        Thread.Sleep(400);
+    }
+
+
+    public GameModes AskGameMode()
+    {
+        Console.Clear();
+        Console.WriteLine("=== MORPION ===\n");
+        Console.WriteLine("Choisissez le mode de jeu :");
+
+        foreach (GameModes mode in Enum.GetValues(typeof(GameModes)))
+        {
+            int intValue = (int)mode;
+            string desc = GetEnumDescription(mode);
+            Console.WriteLine($"{intValue} - {desc}");
+        }
+
+        Console.Write("\nVotre choix : ");
+        string? input = Console.ReadLine();
+
+        if (int.TryParse(input, out int selectedMode)
+            && Enum.IsDefined(typeof(GameModes), selectedMode))
+        {
+            return (GameModes)selectedMode;
+        }
+
+        ShowInvalidInput();
+        return AskGameMode();
+    }
+
 }

@@ -9,5 +9,7 @@ public interface IUserInterface
     void ShowWin(in IPlayer player);
     void ShowDraw();
     bool AskReplay();
+    void ShowAIMove(IPlayer ai, int position);
+    GameModes AskGameMode();
 }
 
