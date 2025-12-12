@@ -10,15 +10,6 @@ public sealed class Game
     private bool IsGameFinished { get; set; } = false;
     private readonly IUserInterface UI;
 
-    public Game(in IUserInterface ui)
-    {        
-        Board = new Board(Settings.Size);
-        PlayerX = new Player(Symbol.X);
-        PlayerO = new Player(Symbol.O);
-        CurrentPlayer = PlayerX;
-        UI = ui;
-    }
-
     public Game(IUserInterface ui)
     {
         Board = new Board(Settings.Size);
