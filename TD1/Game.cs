@@ -36,7 +36,7 @@ public sealed class Game
                 PlayerX = new Player(Symbol.X);
                 PlayerO = new AIPlayer(Symbol.O);
                 break;
-
+                
             default:
                 throw new ArgumentOutOfRangeException();
         }
