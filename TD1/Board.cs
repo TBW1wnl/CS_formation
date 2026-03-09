@@ -114,4 +114,29 @@ public sealed class Board
 
         return false;
     }
+
+    public string Serialize()
+    {
+        var values = new List<string>();
+
+        for (int i = 0; i < Size; i++)
+            for (int j = 0; j < Size; j++)
+                values.Add(((int)Cells[i, j]).ToString());
+
+        return string.Join(",", values);
+    }
+
+    public void Deserialize(string data)
+    {
+        var values = data.Split(',').Select(int.Parse).ToArray();
+
+        int index = 0;
+        for (int i = 0; i < Size; i++)
+        {
+            for (int j = 0; j < Size; j++)
+            {
+                Cells[i, j] = (Symbol)values[index++];
+            }
+        }
+    }
 }

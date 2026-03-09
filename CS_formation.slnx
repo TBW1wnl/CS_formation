@@ -1,4 +1,5 @@
 <Solution>
+  <Project Path="Migrations/Migrations.csproj" Id="27c5e091-6ab3-4f21-a0a6-60bc2fe9001a" />
   <Project Path="TD1/TD_Morpion.csproj" />
   <Project Path="Test_TD_Morpion/Test_TD_Morpion.csproj" Id="dd8669f8-e15e-44a7-8289-ca8a1fac9577" />
 </Solution>
