@@ -3,17 +3,33 @@
 public sealed class Game
 {
     public Settings Settings => Settings.Instance;
+    private readonly GameRepository _repository;
+    private Guid _gameId = Guid.NewGuid();
     private Board Board { get; init; }
     private IPlayer PlayerX { get; init; }
     private IPlayer PlayerO { get; init; }
     private IPlayer CurrentPlayer { get; set; }
+
+    private GameState gameState { get; set; }
+
     private bool IsGameFinished { get; set; } = false;
     private readonly IUserInterface UI;
 
-    public Game(IUserInterface ui)
+    public Game(IUserInterface ui, GameRepository repository)
     {
+        _repository = repository;
+
         Board = new Board(Settings.Size);
         UI = ui;
+
+        gameState = new GameState
+        {
+            Id = _gameId,
+            Size = Board.Size,
+            BoardState = Board.Serialize(),
+            IsFinished = IsGameFinished,
+            CreatedAt = DateTime.UtcNow
+        };
 
         switch (ui.AskGameMode())
         {
@@ -23,20 +39,12 @@ public sealed class Game
                 break;
 
             case GameModes.EasyAi:
-                PlayerX = new Player(Symbol.X);
-                PlayerO = new AIPlayer(Symbol.O);
-                break;
-            // MediumAi and HardAi won't have different AI implementations
             case GameModes.MediumAi:
-                PlayerX = new Player(Symbol.X);
-                PlayerO = new AIPlayer(Symbol.O);
-                break;
-
             case GameModes.HardAi:
                 PlayerX = new Player(Symbol.X);
                 PlayerO = new AIPlayer(Symbol.O);
                 break;
-                
+
             default:
                 throw new ArgumentOutOfRangeException();
         }
@@ -44,13 +52,13 @@ public sealed class Game
         CurrentPlayer = PlayerX;
     }
 
-    public void Start()
+    public async Task Start()
     {
         Board.Initialize();
-        Run();
+        await Run();
     }
 
-    private void Run()
+    private  async Task Run()
     {
         while (true)
         {
@@ -80,6 +88,8 @@ public sealed class Game
 
             if (Board.TryPlaceSymbol(position, CurrentPlayer.Symbol, out string? reason))
             {
+                await SaveGame();
+
                 IsGameFinished = CheckGameEnd();
                 SwitchPlayer();
             }
@@ -104,12 +114,14 @@ public sealed class Game
         if (Board.HasWinner(CurrentPlayer.Symbol))
         {
             UI.ShowWin(CurrentPlayer);
+            gameState.FinishGame(CurrentPlayer.Symbol.ToString());
             return true;
         }
 
         if (Board.IsFull())
         {
             UI.ShowDraw();
+            gameState.FinishGame(CurrentPlayer.Symbol.ToString());
             return true;
         }
 
@@ -119,5 +131,12 @@ public sealed class Game
     private void SwitchPlayer()
     {
         CurrentPlayer = (CurrentPlayer == PlayerX) ? PlayerO : PlayerX;
+        gameState.CurrentPlayer = CurrentPlayer.Symbol.ToString();
+    }
+
+    private async Task SaveGame()
+    {
+        gameState.BoardState = Board.Serialize();
+        await _repository.SaveAsync(gameState);
     }
 }
