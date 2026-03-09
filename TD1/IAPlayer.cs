@@ -15,7 +15,7 @@ public sealed class AIPlayer : IPlayer
         Symbol = symbol;
     }
 
-    public int MakeMove(Board board)
+    public async Task<int> MakeMove(Board board)
     {
         List<(int row, int col)> freeCells = [.. board.GetFreePositions()];
 
@@ -23,6 +23,7 @@ public sealed class AIPlayer : IPlayer
         {
             throw new InvalidOperationException("Aucun coup possible");
         }
+        await Task.Delay(500);
 
         (int row, int col) = freeCells[_rnd.Next(freeCells.Count)];
 

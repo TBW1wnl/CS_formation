@@ -70,7 +70,7 @@ public sealed class Game
             int position;
             if (CurrentPlayer is AIPlayer ai)
             {
-                position = ai.MakeMove(Board);
+                position = ai.MakeMove(Board).Result;
                 UI.ShowAIMove(ai, position);
             }
             else

@@ -60,7 +60,7 @@ public sealed class Board
     public IEnumerable<(int row, int col)> GetFreePositions() =>
         from i in Enumerable.Range(0, Size)
         from j in Enumerable.Range(0, Size)
-        where Cells[i, j] == Symbol.Empty
+        where Cells[j, i] == Symbol.Empty
         select (i, j);
 
     public bool HasWinner(in Symbol symbol)
